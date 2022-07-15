@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.myapp.mapper.AttachMapper">
+	<insert id="insert">
+		insert into tbl_attach (uuid, uploadpath, filename, filetype, partcode)
+		values (#{uuid}, #{uploadPath}, #{fileName}, #{fileType}, #{partCode})
+	</insert>
+	
+	<delete id="delete">
+		delete from tbl_attach where uuid=#{uuid}
+	</delete>
+	
+	<select id="findByPartCode" resultType="org.myapp.domain.AttachVO">
+		select * from tbl_attach where partcode=#{partCode}
+	</select>
+
+</mapper>

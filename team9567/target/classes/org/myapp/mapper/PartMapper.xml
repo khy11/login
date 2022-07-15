@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.myapp.mapper.PartMapper">
+	
+	<!-- 품목 조건 검색 -->
+	<sql id="criteria">
+		<where>
+	    	<trim prefixOverrides="OR">
+		    	<foreach item="type" collection="typeArr">
+		    		<trim prefix="OR">
+			    		<choose>
+			    			<when test='type=="C"'>
+			    				partcode like '%'||#{keyword}||'%'
+			    			</when>
+			    			
+			    			<when test='type=="W"'>
+			    				partname like '%'||#{keyword}||'%'
+			    			</when>
+			    		</choose>
+		    		</trim>
+		    	</foreach>
+	    	</trim>
+	    </where>
+	</sql>
+	
+<!-- 	
+	<select id="getPart" resultType="org.myapp.domain.PartVO">
+		<![CDATA[select * from tbl_part where rownum < 11 order by partcode desc]]>
+	</select> -->
+	
+	<!-- 품목 페이지처리 -->
+	<select id="getPartWithPaging" resultType="org.myapp.domain.PartVO">
+		select partcode, partname, nickname, library, remark, common, drw_no, drw_img
+		from (select rownum rn, partcode, partname, nickname, library, remark, common, drw_no, drw_img
+		    from (select * from tbl_part
+		
+		<include refid="criteria"></include>
+		
+		    <![CDATA[order by partcode desc)
+		    	where rownum <= (#{pageNum} * #{amount})) 
+		where rn > ((#{pageNum} -1) * #{amount})]]>
+	</select>
+	
+	<!-- 품목등록 -->
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="PartCode" order="BEFORE" resultType="long">
+			select seq_partcode.nextval from dual
+		</selectKey>
+		insert into tbl_part(PartCode, partname, nickname, library, remark, common, drw_no, drw_img)
+		values(#{partCode}, #{partName}, #{nickName}, #{library}, #{remark}, #{common}, #{drw_No, jdbcType=VARCHAR}, #{drw_Img})
+	</insert>
+	
+	<!-- 품목개수 -->
+	<select id="count" resultType="long">
+		select count(*) from tbl_part
+		<include refid="criteria"></include>
+	</select>
+	
+	<!-- 품목삭제 -->
+	<delete id="delete">
+		delete from tbl_part where partcode=#{partCode}
+	</delete>
+	
+	<!-- 품목 개별조회 -->
+	<select id="read" resultType="org.myapp.domain.PartVO">
+		select partcode, partname, nickname, library, remark, common, drw_no, drw_img from tbl_part where partcode=#{partCode, jdbcType=VARCHAR}
+	</select>
+	
+	<!-- 품목정보수정 -->
+	<update id="update">
+		update tbl_part set partname=#{partName}, nickname=#{nickName}, library=#{library}, remark=#{remark}, common=#{common}, drw_no=#{drw_No}, drw_img=#{drw_Img} where partcode=#{partCode}
+	</update>
+</mapper>

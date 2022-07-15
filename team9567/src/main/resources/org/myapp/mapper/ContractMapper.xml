@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="org.myapp.mapper.ContractMapper">
+	
+	<!-- 계약정보 조건 검색 -->
+	<sql id="criteria">
+		
+    	<trim prefixOverrides="OR">
+	    	<foreach item="type" collection="typeArr">
+	    		<trim prefix="OR">
+		    		<choose>
+		    			<when test='type=="C"'>
+		    				and contractno like '%'||#{keyword}||'%'
+		    			</when>
+		    			
+		    			<when test='type=="W"'>
+		    				and name like '%'||#{keyword}||'%'
+		    			</when>
+		    			
+		    			<when test='type=="R"'>
+		    				and partname like '%'||#{keyword}||'%'
+		    			</when>
+		    		</choose>
+	    		</trim>
+	    	</foreach>
+    	</trim>
+	    
+	</sql>
+	
+<!-- 	
+	<select id="getContract" resultType="org.myapp.domain.ContractVO">
+		<![CDATA[select * from tbl_contract where rownum < 11 order by contractno desc]]>
+	</select> -->
+	
+	<!-- 계약정보 페이지처리 -->
+	<select id="getContractWithPaging" resultType="org.myapp.domain.ContractVO">
+		select contractno, partssupply, unitprice, transferconditions, partcode, code, contractdate, name, partname
+		from (select rownum rn, contractno, partssupply, unitprice, transferconditions, partcode, code, contractdate, name, partname
+		    from (select A.contractno, A.partssupply, A.unitprice, A.transferconditions, A.partcode, A.code, A.contractdate, B.name, C.partname from tbl_contract A, tbl_company B, tbl_part C 
+		
+		where A.partcode=C.partcode and A.code=B.code
+		<include refid="criteria"></include>
+		
+		    <![CDATA[order by A.contractno desc)
+		    	where rownum <= (#{pageNum} * #{amount})) 
+		where rn > ((#{pageNum} -1) * #{amount})]]>
+	</select>
+	
+	<!-- 계약정보등록 -->
+	<insert id="insertSelectKey">
+		<selectKey keyProperty="ContractNo" order="BEFORE" resultType="long">
+			select seq_contractno.nextval from dual
+		</selectKey>
+		insert into tbl_contract(ContractNo, partssupply, transferconditions, unitprice, partcode, code, contractdate)
+		values(#{contractNo}, #{partsSupply}, #{transferConditions}, #{unitPrice}, #{partCode}, #{code, jdbcType=VARCHAR}, sysdate)
+	</insert>
+	
+	<!-- 계약정보개수 -->
+	<select id="count" resultType="long">
+		select count(*) from tbl_contract A, tbl_company B, tbl_part C
+		where A.partcode=C.partcode and A.code=B.code
+		<include refid="criteria"></include>
+	</select>
+	
+	<!-- 계약정보삭제 -->
+	<delete id="delete">
+		delete from tbl_contract where contractno=#{contractNo}
+	</delete>
+	
+	<!-- 계약정보 개별조회 -->
+	<select id="read" resultType="org.myapp.domain.ContractVO">
+		select A.contractno, A.partssupply, A.transferconditions, A.unitprice, A.partcode, A.code, A.contractdate, B.partname from tbl_contract A, tbl_part B where A.partcode=B.partcode and contractno=#{contractNo}
+	</select>
+	
+	<!-- 계약정보수정 -->
+	<update id="update">
+		update tbl_contract set contractno=#{contractNo}, partssupply=#{partsSupply}, transferconditions=#{transferConditions}, unitprice=#{unitPrice}, partcode=#{partCode}, code=#{code}, contractdate=sysdate where contractno=#{contractNo}
+	</update>
+	
+	
+</mapper>
