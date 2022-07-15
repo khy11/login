@@ -31,6 +31,8 @@
 				
 				<security:form-login login-page="/customLogin"/>
 				
+				<security:logout logout-url="/customLogout" invalidate-session="true" />
+				
 			</security:http>
 			
 			<security:authentication-manager>
