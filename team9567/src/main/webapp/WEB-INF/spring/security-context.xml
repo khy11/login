@@ -8,7 +8,9 @@
 
 	<bean id="customAccessDenied"
 		class="org.myapp.security.CustomAccessDeniedHandler"></bean>
-
+	<bean id="customLoginSuccess"
+		class="org.myapp.security.CustomLoginSuccessHandler"></bean>
+		
 	<security:http>
 
 		<security:intercept-url pattern="/login/all"
@@ -22,8 +24,12 @@
 				<!-- <security:access-denied-handler error-page="/accessError"/> -->
 				<security:access-denied-handler ref="customAccessDenied"/>
 				
-				<security:form-login/>
+			<security:form-login login-page="/customLogin"
+				authentication-success-handler-ref="customLoginSuccess" />
 				
+				<!-- <security:form-login/> -->
+				
+				<security:form-login login-page="/customLogin"/>
 				
 			</security:http>
 			
