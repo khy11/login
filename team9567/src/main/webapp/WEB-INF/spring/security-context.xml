@@ -6,7 +6,13 @@
 	http://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-		<security:http>
+	<security:http>
+
+		<security:intercept-url pattern="/login/all"
+			access="permitAll" />
+
+		<security:intercept-url
+			pattern="/login/member" access="hasRole('ROLE_MEMBER')" />
 		
 				<security:form-login/>
 				
